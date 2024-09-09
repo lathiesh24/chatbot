@@ -5,6 +5,7 @@ import os
 import time
 from thirdai import licensing, neural_db as ndb
 from dotenv import load_dotenv
+import os
 #nltk.download("punkt")
 load_dotenv()
 #if os.environ.get('third_ai') :
@@ -14,27 +15,36 @@ if "THIRD_KEY" not in os.environ:
 insertable_docs = [
 ]
 db=ndb.NeuralDB()
-#streamlit run D.py
-#doc_files = [r"D:\coding\Python\Policy\accidental-death-benefit-rider-brochure.pdf", r"D:\coding\Python\Policy\cash-back-plan-brochuree.pdf", r"D:\coding\Python\Policy\gold-brochure.pdf", r"D:\coding\Python\Policy\guaranteed-protection-plus-plan-brochure.pdf", r"D:\coding\Python\Policy\indiafirst-csc-shubhlabh-plan-brochure.pdf", r"D:\coding\Python\Policy\indiafirst-life-elite-term-plan-brochure.pdf", r"D:\coding\Python\Policy\indiafirst-life-guaranteed-benefit-plan-brochure1.pdf", r"D:\coding\Python\Policy\indiafirst-life-insurance-khata-plan-brochure.pdf", r"D:\coding\Python\Policy\indiafirst-life-little-champ-plan-brochure.pdf", r"D:\coding\Python\Policy\indiafirst-life-long-guaranteed-income-plan-brochure.pdf",r"D:\coding\Python\Policy\indiafirst-life-micro-bachat-plan-brochure.pdf", r"D:\coding\Python\Policy\indiafirst-life-plan-brochure.pdf", r"D:\coding\Python\Policy\indiafirst-life-radiance-smart-investment-plan-brochure.pdf", r"D:\coding\Python\Policy\indiafirst-life-saral-bachat-bima-A-brochure.pdf", r"D:\coding\Python\Policy\indiafirst-life-saral-jeevan-bima-brochure.pdf", r"D:\coding\Python\Policy\indiafirst-life-smart-pay-plan-brochure.pdf", r"D:\coding\Python\Policy\indiafirst-maha-jeevan-plan-brochure.pdf", r"D:\coding\Python\Policy\indiafirst-money-balance-plan-brochure.pdf", r"D:\coding\Python\Policy\indiafirst-pos-cash-back-plan-brochure.pdf", r"D:\coding\Python\Policy\indiafirst-simple-benefit-plan-brochure.pdf", r"D:\coding\Python\Policy\single-premium-brochure.pdf", r"D:\coding\Python\Policy\smart-save-plan-brochure.pdf", r"D:\coding\Python\Policy\tulip-brochure.pdf", r"D:\coding\Python\Policy\wealth-maximizer-brochure.pdf"] 
-doc_files = [r"D:\rag\policies\Policies.pdf",r"D:\rag\policies\accidental-death-benefit-rider-brochure.pdf",r"D:\rag\policies\cash-back-plan-brochuree.pdf",r"D:\rag\policies\gold-brochure (1).pdf",r"D:\rag\policies\gold-brochure.pdf",r"D:\rag\policies\guaranteed-protection-plus-plan-brochure.pdf",r"D:\rag\policies\indiafirst-csc-shubhlabh-plan-brochure.pdf",r"D:\rag\policies\indiafirst-life-elite-term-plan-brochure.pdf",r"D:\rag\policies\indiafirst-life-guaranteed-benefit-plan-brochure1 (1).pdf",r"D:\rag\policies\indiafirst-life-guaranteed-benefit-plan-brochure1.pdf",r"D:\rag\policies\indiafirst-life-long-guaranteed-income-plan-brochure (1).pdf",r"D:\rag\policies\indiafirst-life-little-champ-plan-brochure.pdf",r"D:\rag\policies\indiafirst-life-insurance-khata-plan-brochure.pdf",r"D:\rag\policies\indiafirst-life-micro-bachat-plan-brochure.pdf",r"D:\rag\policies\indiafirst-life-micro-bachat-plan-brochure (1).pdf",r"D:\rag\policies\indiafirst-life-long-guaranteed-income-plan-brochure.pdf",r"D:\rag\policies\indiafirst-life-saral-bachat-bima-plan-brochure.pdf",r"D:\rag\policies\indiafirst-life-radiance-smart-investment-plan-brochure.pdf",r"D:\rag\policies\indiafirst-life-plan-brochure.pdf",r"D:\rag\policies\indiafirst-maha-jeevan-plan-brochure.pdf",r"D:\rag\policies\indiafirst-life-smart-pay-plan-brochure.pdf",r"D:\rag\policies\indiafirst-life-saral-jeevan-bima-brochure.pdf",r"D:\rag\policies\indiafirst-pos-cash-back-plan-brochure.pdf",r"D:\rag\policies\indiafirst-money-balance-plan-brochure.pdf",r"D:\rag\policies\indiafirst-maha-jeevan-plan-brochure.pdf",r"D:\rag\policies\single-premium-brochure.pdf",r"D:\rag\policies\single-premium-brochure (1).pdf",r"D:\rag\policies\indiafirst-simple-benefit-plan-brochure.pdf",r"D:\rag\policies\wealth-maximizer-brochure.pdf",r"D:\rag\policies\tulip-brochure.pdf",r"D:\rag\policies\smart-save-plan-brochure.pdf"] 
 
-#doc_files = ["C:\\Users\\kamal\\OneDrive\\Desktop\\InsuranceBot\\Policies -  1.CSC Shubhlabh Plan.csv"]
+pdf_folder_path = 'E:\\D drive\\Desktop\\sandhuruteam\\chatbot\\data' 
+doc_files = [os.path.join(pdf_folder_path, file) for file in os.listdir(pdf_folder_path) if file.endswith('.pdf')]
+
+# Process each file and insert it into the database
+insertable_docs = []
 for file in doc_files:
     doc = ndb.PDF(file)
     insertable_docs.append(doc)
+
+# Insert documents into NeuralDB
 db.insert(insertable_docs, train=False)
+
 
 if "OPENAI_API_KEY" not in os.environ:
     os.environ["OPENAI_API_KEY"] =os.getenv('OPEN_AI_KEY')
+    
+import openai
 
-from openai import OpenAI
+# Make sure to set the API key correctly
+if "OPENAI_API_KEY" not in os.environ:
+    os.environ["OPENAI_API_KEY"] = os.getenv('OPEN_AI_KEY')
+
+openai.api_key = os.getenv('OPENAI_API_KEY')  # Set API key for OpenAI
+
 def generate_answers(query, references):
-    openai_client = OpenAI()
     context = "\n\n".join(references[:3])
 
-    #prompt = f"As an insurance expert, provide a direct and concise answer to the following question, focusing on any numerical or quantitative aspects first. Use the provided context and explain only the most relevant terms if necessary:\n\nQuestion: {query}\n\nContext: {context}\n\nPlease avoid asking for additional information unless absolutely necessary, and give a clear answer based on the available context."
     prompt = f"""
-As an insurance expert of IndiaFirst Life Company , your task is to provide a direct and concise answer to the following question using the information from the referenced documents. Prioritize any numerical or quantitative data, and only explain key terms if they are essential to understanding the answer.
+As an insurance expert of IndiaFirst Life Company, your task is to provide a direct and concise answer to the following question using the information from the referenced documents. Prioritize any numerical or quantitative data, and only explain key terms if they are essential to understanding the answer.
 
 **Question:** {query}
 
@@ -42,37 +52,22 @@ As an insurance expert of IndiaFirst Life Company , your task is to provide a di
 {", ".join([f'Document {i+1}' for i in range(len(doc_files))])}
 
 **Instructions:**
--greet the user only once and answer with little respect.
--You strictly don't have to greet the user every single time.
+- greet the user only once and answer with little respect.
 - Focus on delivering a clear, factual answer using the data from the {doc_files}.
--first read the {doc_files} completely and answer by analysing the questions carefully. 
-- Highlight numerical values, percentages, or any other quantitative information first.
-- Pay close attention to data presented in tabular columns within the {doc_files}. Extract and reference this tabular data accurately, as it often contains key details such as coverage amounts, premium rates, benefits, and terms. Use this structured information to support your answer, ensuring that any figures or statistics you mention are drawn directly from these tables.
-- Try to provie the answers with similar words from the {doc_files}.
-- Ensure that all money-related values are provided in Indian Rupees (INR).
-- Only explain relevant terms if they are crucial for understanding the response.
-- Avoid asking for additional information unless absolutely necessary.
-- Respond based solely on the content of the provided {doc_files}.
--Do not answer 18 years for all the {query} asking about age .
-- carefully check if the {query} is about age og entry or age og maturity and give anwsers accordingly.
-- carefully check if the {query} is about Whole of Life Income Option   or Definite Income Option  and give anwsers accordingly.
-Provide the most accurate answer possible given the context.
-The example of how you should answer is given below :
-question: What is the minimum age at entry for Definite Income Option in Long Guaranteed Income Plan  ?
-answer :8 years  is the minimum age at entry for Definite Income Option 
-question: What is the maximum age at entry for the Definite Income Option under this policy in Long Guaranteed Income Plan?
-answer:  50 years is the maximum age at entry for the Definite Income Option under this policy"""
+- Carefully check if the {query} is about the age of entry or age of maturity and give answers accordingly.
+- Provide the most accurate answer possible given the context.
+"""
 
-    messages = [{"role": "user", "content": prompt}]
-
-    response = openai_client.chat.completions.create(
-        model="gpt-3.5-turbo", messages=messages, temperature=0
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0
     )
-    return response.choices[0].message.content
+    
+    return response.choices[0].message['content']
 
 def generate_queries_chatgpt(original_query):
-    openai_client = OpenAI()
-    response = openai_client.chat.completions.create(
+    response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are a helpful assistant that generates multiple search queries based on a single input query."},
@@ -81,7 +76,7 @@ def generate_queries_chatgpt(original_query):
         ]
     )
 
-    generated_queries = response.choices[0].message.content.strip().split("\n")
+    generated_queries = response.choices[0].message['content'].strip().split("\n")
     return generated_queries
 
 def get_references(query):
